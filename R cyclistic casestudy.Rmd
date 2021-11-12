@@ -1,0 +1,107 @@
+---
+title: "Cyclistic Bike Share"
+author: "Frans"
+date: "10/11/2021"
+output: html_document
+---
+The mission statement
+The bike sharing company wants to analyze their user data to find the main differences in behaviour between their two types of users, the “casual” who pays for each ride and the annual member who pays a yearly subscription to the service.
+PHASE 1 : ASK
+Key objectives:
+1.Identify the business task:
+
+The company wants to improve their earnings reaching out to their “casual” riders, and for that they have to analyze in what aspects the “casual” and the annual customers differ, to be able to create a focused and successful marketing message to the “casual” customers that makes them change to the annual subscription.
+2.Consider key stakeholders:
+
+The main stakeholders here are the director of marketing and my manager Lily Moreno, the rest of the marketing analytics team, and the Cyclistic executive team.
+3.The business task:
+
+Given these facts, the business task is defined as searching for differences in the two identified kinds of users in order to make a focused marketing campaign to the “casual” users in order for them to change to the annual subscription, or resumed in a question:
+
+¿What could motivate the “casual” users to change to an annual subscription based on their behavior?
+
+PHASE 2 : Prepare
+Key objectives:
+1.Determine the credibility of the data:
+
+The data is public data from a bike sharing company. It starts from the year 2013 until 2021 (three months), there isn't much of a naming convention as the files are sometimes organized by quarter, or month, or the whole year and their names vary a lot. The naming of the columns also changes and there are some columns added and deleted over the years. Nevertheless the data seems to be in good condition and its first hand data collected by the company itself with lots of entries and with lots of useful data.
+2.Sort and filter the data:
+
+For this analysis I'm going to focus on the 2020-2021 period as it's the more relevant period to the business task and it has the more complete data with geo-location coordinates, and types of bike used.
+#Loading the nescesary packages for analysis
+```{r}
+library(tidyverse)
+library(ggplot2)
+library(lubridate)
+library(ggmap)
+library(gridExtra)
+```
+# Importing Data 
+```{r}
+tripdata_2021_09<- read.csv("C:/Users/DELL/OneDrive/Desktop/CSV_file/202109-divvy-tripdata.csv")
+tripdata_2021_08<- read.csv("C:/Users/DELL/OneDrive/Desktop/CSV_file/202108-divvy-tripdata.csv")
+tripdata_2021_07<- read.csv("C:/Users/DELL/OneDrive/Desktop/CSV_file/202107-divvy-tripdata.csv")
+tripdata_2021_06<- read.csv("C:/Users/DELL/OneDrive/Desktop/CSV_file/202106-divvy-tripdata.csv")
+tripdata_2021_05<- read.csv("C:/Users/DELL/OneDrive/Desktop/CSV_file/202105-divvy-tripdata.csv")
+tripdata_2021_04<- read.csv("C:/Users/DELL/OneDrive/Desktop/CSV_file/202104-divvy-tripdata.csv")
+tripdata_2021_03<- read.csv("C:/Users/DELL/OneDrive/Desktop/CSV_file/202103-divvy-tripdata.csv")
+tripdata_2021_02<- read.csv("C:/Users/DELL/OneDrive/Desktop/CSV_file/202102-divvy-tripdata.csv")
+tripdata_2021_01<- read.csv("C:/Users/DELL/OneDrive/Desktop/CSV_file/202101-divvy-tripdata.csv")
+```
+
+```{r}
+tripdata_combined <- bind_rows(tripdata_2021_01,tripdata_2021_02,tripdata_2021_03,tripdata_2021_04,tripdata_2021_05,tripdata_2021_06,tripdata_2021_07,tripdata_2021_08,tripdata_2021_09)
+```
+
+PHASE 3 : Process
+Key objectives:
+1.Clean the data, and prepare the data for analysis:
+
+Now that we have all the data in one place we can start to clean the data of possible errors like NA. Also we will make some changes to the data adding useful new columns based on calculations of already existing columns in order to facilitate our analysis and arrive at more insightful conclusions.
+
+```{r}
+head(tripdata_combined)
+glimpse(tripdata_combined)
+colnames(tripdata_combined)
+summary(tripdata_combined)
+```
+# Cleaning the data:
+# Drop all NA:
+
+```{r}
+drop_na(tripdata_combined)
+```
+
+# Creating new columns
+
+# Insertingnew column duration of ride
+```{r}
+tripdata_combined$ride_length <- as.difftime(tripdata_combined$ended_at,tripdata_combined$started_at)
+```
+
+# The dataframe includes a few hundred entries when bikes were taken out of docks and checked for quality by Divvy or ride_length was negative:
+
+```{r}
+tripdata_combined<-tripdata_combined[!(tripdata_combined$start_station_name == "HQ QR"| tripdata_combined$ride_length<0),]
+```
+
+PHASE 4 : Analyze
+Key objectives:
+1.Identify trends and relationships.:
+
+We have now a complete data frame with all the info we need to identify the differences in behaviour between the casual and the member users.
+
+#Ave distance and distance for both casual and member:
+
+```{r}
+library(dplyr)
+tripdata_combined%>% 
+  group_by(member_casual)%>%
+  summarise(mean_length=mean(ride_length))
+
+ggplot(tripdata_combined)+geom_bar(mapping = aes(x=member_casual,fill=member_casual))+
+  labs(title = "mean travel time by user",x="user type",y="Mean time in seconds")
+
+
+```
+
