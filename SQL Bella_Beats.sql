@@ -16,6 +16,10 @@ from Bella_beats.[sleepDay_merged v1.1]
 select *
 from Bella_beats.[weightLogInfo_merged V1.1]
 
+select *
+from Bella_beats.heartrate_seconds_merged
+
+
 
 -- Formating date in correct format
 
@@ -50,6 +54,14 @@ alter column ActivityDay date
 select *
 from Bella_beats.[dailySteps_merged v1.1]
 
+
+
+alter table Bella_beats.heartrate_seconds_merged
+alter column time date
+
+select *
+from Bella_beats.heartrate_seconds_merged
+where Time is not null
 
 --amount of test subjects
 --33 distinct OBS
@@ -152,3 +164,25 @@ from Bella_beats.[sleepDay_merged v1.1]
 --where Month like ('April')
 group by Id
 --order by Id, month asc
+
+--Working out the avrage heart rate per user per day
+-- and per month
+select Time, AVG(value) as AVG_Heart_Rate,Id
+from Bella_beats.heartrate_seconds_merged
+--where Time is not null
+group by time,Id
+order by Time asc
+
+-- April
+select Time, AVG(value) as AVG_Heart_Rate,Id
+from Bella_beats.heartrate_seconds_merged
+where Time between '2016-04-12' and '2016-04-30'
+group by time,Id
+order by Time asc
+
+--May
+select Time, AVG(value) as AVG_Heart_Rate,Id
+from Bella_beats.heartrate_seconds_merged
+where Time between '2016-05-01' and '2016-05-30'
+group by time,Id
+order by Time asc
